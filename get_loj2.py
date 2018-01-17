@@ -23,9 +23,28 @@ class Problem(object):
 		self.tag=[]
 		self.source=''
 		self.workPath=''
+		self.session=requests.Session()
 
 	def writeFps(self,ProblemCount=10):
 		pass
 
-	
-		
+	def getProblemID(self):
+		page=1
+		problemlist=[]
+		reg = '<a style="vertical-align: middle; " href="/problem/([0-9]+)">'
+		com = re.compile(reg)
+		while page<=7:
+			response=session.get("https://loj.ac/problems?page="+str(page))
+			if response.status_code==200:
+				problemlist+=re.findall(com,page)
+				page+=1
+			else:
+				print("ERROR")
+
+	def getpage(self,url):
+		try:
+			#url="https://loj.ac/problem/"+str(problemid)
+			page=session.get(url)
+
+			
+
