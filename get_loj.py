@@ -1,4 +1,4 @@
-#TODO: 图片抓取，markdown文本解析
+#TODO: get image,markdown 
 import requests
 import re
 import sys
