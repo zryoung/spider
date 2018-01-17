@@ -9,6 +9,10 @@ import requests
 import re
 import sys
 from bs4 import BeautifulSoup
+import Image
+import cStringIO
+import urllib2
+import base64
 
 class Problem(object):
 	"""docstring for Problem"""
@@ -28,6 +32,12 @@ class Problem(object):
 	def writeFps(self,ProblemCount=10):
 		pass
 
+	def getImageToBase64(self,url):
+		file=cStringIO.StringIO(urllib2.urlopen(url).read())
+		img=Image.open(file)
+		base64_data=base64.b64encode(img)
+		return(base64_data)
+
 	def getProblemID(self):
 		page=1
 		problemlist=[]
@@ -46,5 +56,11 @@ class Problem(object):
 			#url="https://loj.ac/problem/"+str(problemid)
 			page=session.get(url)
 
-			
+	# def getImageToBase64(self,url):
+	# 	file=cStringIO.StringIO(urllib2.urlopen(url).read())
+	# 	img=Image.open(file)
+	# 	base64_data=base64.b64encode(img)
+	# 	return(base64_data)
 
+p=Problem()
+print(p.getImageToBase64("https://ooo.0o0.ooo/2017/06/10/593bcc13da98c.png"))
