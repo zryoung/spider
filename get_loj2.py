@@ -9,9 +9,10 @@ import requests
 import re
 import sys
 from bs4 import BeautifulSoup
-import Image
-import cStringIO
-import urllib2
+from PIL import Image
+#from io import StringIO
+import io
+from urllib import request
 import base64
 
 class Problem(object):
@@ -33,9 +34,7 @@ class Problem(object):
 		pass
 
 	def getImageToBase64(self,url):
-		file=cStringIO.StringIO(urllib2.urlopen(url).read())
-		img=Image.open(file)
-		base64_data=base64.b64encode(img)
+		base64_data='data:image/png;base64,'+base64.b64encode(request.urlopen(url).read()).decode('utf-8')
 		return(base64_data)
 
 	def getProblemID(self):
@@ -50,17 +49,20 @@ class Problem(object):
 				page+=1
 			else:
 				print("ERROR")
+		return(problemlist)
 
 	def getpage(self,url):
 		try:
 			#url="https://loj.ac/problem/"+str(problemid)
 			page=session.get(url)
+		except Exception as e:
+			print(e)
 
-	# def getImageToBase64(self,url):
-	# 	file=cStringIO.StringIO(urllib2.urlopen(url).read())
-	# 	img=Image.open(file)
-	# 	base64_data=base64.b64encode(img)
-	# 	return(base64_data)
+		# def getImageToBase64(self,url):
+		# 	file=cStringIO.StringIO(urllib2.urlopen(url).read())
+		# 	img=Image.open(file)
+		# 	base64_data=base64.b64encode(img)
+		# 	return(base64_data)
 
 p=Problem()
 print(p.getImageToBase64("https://ooo.0o0.ooo/2017/06/10/593bcc13da98c.png"))
