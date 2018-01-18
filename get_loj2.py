@@ -25,17 +25,18 @@ class Problem(object):
     """docstring for Problem"""
 
     def __init__(self):
-        self.title = ''
-        self.description = ''
-        self.inputFormat = ''
-        self.outputFormat = ''
-        self.sample = []
-        self.dataRange = ''
-        self.hint = ''
-        self.tag = []
-        self.source = ''
-        self.workPath = ''
-        self.session = requests.Session()
+        pass
+        # self.title = ''
+        # self.description = ''
+        # self.inputFormat = ''
+        # self.outputFormat = ''
+        # self.sample = []
+        # self.dataRange = ''
+        # self.hint = ''
+        # self.tag = []
+        # self.source = ''
+        # self.workPath = ''
+        # self.session = requests.Session()
 
 
 def write_fps(ProblemCount=10):
@@ -96,6 +97,23 @@ def get_test_info(url):
         test_info.append([inf, outf])
     return test_info
 
+def get_problem(url):
+    '''get problem from url'''
+    p=Problem()
+
+    page=request.urlopen(url).read()
+    soup=BeautifulSoup(page,'lxml')
+    # get title
+    title=soup.find_all('h1',class_='ui header')
+    title=re.sub(r'#\d*?\.','',title[0].text).strip()
+    # get info
+    info=soup.find_all('span',class_='ui label')
+    memory_limit=re.search(u'\d+',info[0].text)
+    print(memory_limit.group(0))
+    print(info[0].text)
+
+
+get_problem('https://loj.ac/problem/502')
 # print(p.getImageToBase64("https://ooo.0o0.ooo/2017/06/10/593bcc13da98c.png"))
-print(get_test_info('https://loj.ac/problem/506/testdata'))
+# print(get_test_info('https://loj.ac/problem/506/testdata'))
 # p.getData('https://loj.ac/problem/506/testdata/download/a1.in')
