@@ -12,7 +12,8 @@ problem page url:			https://loj.ac/problem/{pid}
 problem test data url:		https://loj.ac/problem/{pid}/testdata
 problem additional_file url:https://loj.ac/problem/{pid}/additional_file
 '''
-
+import io
+import sys
 import re
 from urllib import request
 import base64
@@ -97,23 +98,72 @@ def get_test_info(url):
         test_info.append([inf, outf])
     return test_info
 
+
 def get_problem(url):
     '''get problem from url'''
-    p=Problem()
-
-    page=request.urlopen(url).read()
-    soup=BeautifulSoup(page,'lxml')
+    # p=Problem()
+    # rs = request.urlopen(url)
+    # page = rs.read().decode()
+    # print(type(page))
+    session = requests.Session()
+    page = session.get(url)
+    # delete 'Katex'
+    patt = r'<span class="katex-mathml">.*? </span>'
+    p = re.compile(patt)
+    pagetxt = re.sub(p, '', page.text)
+    # print(pagetxt)
+    soup = BeautifulSoup(pagetxt, 'lxml')
     # get title
-    title=soup.find_all('h1',class_='ui header')
-    title=re.sub(r'#\d*?\.','',title[0].text).strip()
-    # get info
-    info=soup.find_all('span',class_='ui label')
-    memory_limit=re.search(u'\d+',info[0].text)
-    print(memory_limit.group(0))
-    print(info[0].text)
+    title = soup.find_all('h1', class_='ui header')
+    title = re.sub(r'#\d*?\.', '', title[0].text).strip()
 
+    # get info,the info include memory limit and time limit .etc
+    # the item of info is not 'str'
+    info = soup.find_all('span', class_='ui label')
+    info = ''.join('%s' % id.text for id in info)  # change list item to 'str'
 
-get_problem('https://loj.ac/problem/502')
+    matchobj = re.search(r'内存限制：(\d+)', info)
+    if matchobj:
+        memory_limit = matchobj.group(1)
+    else:
+        memory_limit = 256
+    matchobj = re.search(r'时间限制：(\d+)', info)
+    if matchobj:
+        time_limit = matchobj.group(1)
+    else:
+        time_limit = 1000
+    matchobj = re.search(u'评测方式：(.*)', info)
+    is_special_judge = False
+    if matchobj:
+        judge_mode = matchobj.group(1)
+        jud = judge_mode.find('Special Judge')
+        if jud > -1:
+            is_special_judge = True
+    # sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
+    caption = soup.find_all(
+        "h4", class_="ui top attached block header")  # 获取题头，如“题目描述”
+    content = soup.find_all(
+        "div", class_="ui bottom attached segment font-content")  # 获取内容
+    for item in caption:
+        if item.text == '题目描述':
+            description = item.find_next_sibling().text
+        elif item.text == '输入格式':
+            input_format = item.find_next_sibling().text
+        elif item.text == '输出格式':
+            output_format = item.find_next_sibling().text
+        elif item.text == '样例':  # todo:样例解释需单独取出
+            sample = item.find_next_sibling().text
+        elif item.text == '数据范围与提示'：
+            hint=item.find_next_sibling().text
+
+        # print('caption:',item.text,'\tContent:',item.find_next_sibling().text)
+        # print(item.find_next_sibling())
+    # print(caption)
+    # print(type(content))
+
+# page = request.urlopen('https://loj.ac/problem/512')
+# print(type(page))
+get_problem('https://loj.ac/problem/512')
 # print(p.getImageToBase64("https://ooo.0o0.ooo/2017/06/10/593bcc13da98c.png"))
 # print(get_test_info('https://loj.ac/problem/506/testdata'))
 # p.getData('https://loj.ac/problem/506/testdata/download/a1.in')
